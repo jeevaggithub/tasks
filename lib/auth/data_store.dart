@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import 'package:tasks/assets/variables.dart';
+import 'package:tasks/screens/login.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -60,6 +61,12 @@ Future<void> userDetailServer(BuildContext context, String name, String email,
       margin: EdgeInsets.all(5),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackdemo);
-    Navigator.pushNamed(context, '/login');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) =>
+            LoginPage(), // Replace with your Favorites screen widget
+      ),
+    );
   }
 }

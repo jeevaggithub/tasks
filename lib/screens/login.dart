@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasks/auth/data_retrive.dart';
 import 'package:tasks/screens/register.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
       // For now, just print the email and password
       print('Email: $_email');
       print('Password: $_password');
+      userlogin(context, _email, _password);
     }
   }
 
