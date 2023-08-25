@@ -33,6 +33,42 @@ class MyApp extends StatelessWidget {
   }
 }
 
+List<Map<String, dynamic>> taskLists = [
+  {
+    'title': 'Task List 1',
+    'tasks': [
+      {
+        'title': 'Task 1',
+        'description': 'Description 1',
+        'dueDate': '2023-12-31'
+      },
+      {
+        'title': 'Task 2',
+        'description': 'Description 2',
+        'dueDate': '2023-12-30'
+      },
+      // Add more tasks as needed
+    ],
+  },
+  {
+    'title': 'Task List 2',
+    'tasks': [
+      {
+        'title': 'Task 1',
+        'description': 'Description 1',
+        'dueDate': '2023-12-31'
+      },
+      {
+        'title': 'Task 2',
+        'description': 'Description 2',
+        'dueDate': '2023-12-30'
+      },
+      // Add more tasks as needed
+    ],
+  },
+  // Add more task lists as needed
+];
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
