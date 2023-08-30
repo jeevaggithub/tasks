@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasks/widgets/task_card.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({Key? key}) : super(key: key);
@@ -22,6 +23,32 @@ class _FavoritesState extends State<Favorites> {
           )
         ],
       )),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  final List<Map<String, dynamic>> favoriteTasks;
+
+  const FavoritesPage({required this.favoriteTasks});
+
+  @override
+  Widget build(BuildContext context) {
+    // return ListView.builder(
+    //   itemCount: favoriteTasks.length,
+    //   itemBuilder: (context, index) {
+    //     final task = favoriteTasks[index];
+    //     return TaskCard(
+    //         title: task['title'],
+    //         descrption: task['description'],
+    //         dueDate: task['dueDate']);
+    //   },
+    // );
+    return Center(
+      child: Text(
+        'favorites works!',
+        style: TextStyle(color: Colors.white),
+      ),
     );
   }
 }
