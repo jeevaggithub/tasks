@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasks/auth/task_manager.dart';
 // import 'package:tasks/screens/favorites.dart';
 
 class AddList extends StatefulWidget {
@@ -11,6 +12,7 @@ class AddList extends StatefulWidget {
 class _AddListState extends State<AddList> {
   bool doneEnable = false;
   final addListFormKey = GlobalKey<FormState>();
+  TextEditingController _listNameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,13 +31,6 @@ class _AddListState extends State<AddList> {
                         child: IconButton(
                           onPressed: () {
                             Navigator.of(context).pop();
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (BuildContext context) =>
-                            //         Favorites(), // Replace with your Favorites screen widget
-                            //   ),
-                            // );
                           },
                           icon: Icon(
                             Icons.close,
@@ -57,6 +52,8 @@ class _AddListState extends State<AddList> {
                                 if (addListFormKey.currentState!.validate()) {
                                   // If the form is valid, display a snackbar. In the real world,
                                   // you'd often call a server or save the information in a database.
+                                  newTaskList(
+                                      context, _listNameController.text);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                         content: Text('Processing Data')),
@@ -88,6 +85,7 @@ class _AddListState extends State<AddList> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
                           child: TextFormField(
+                            controller: _listNameController,
                             decoration: InputDecoration(
                               focusColor: Colors.white,
                               labelText: 'List name',

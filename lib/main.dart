@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+
+// import 'package:tasks/assets/variables.dart';
+import 'package:tasks/auth/data_retrive.dart';
+import 'package:tasks/auth/task_manager.dart';
 import 'package:tasks/screens/NotFoundScreen.dart';
 // import 'package:tasks/screens/add_list.dart';
 import 'package:tasks/screens/add_screen.dart';
@@ -10,14 +15,25 @@ import 'package:tasks/screens/register.dart';
 import 'package:tasks/widgets/btmnavbar.dart';
 import 'package:tasks/widgets/task_card.dart';
 
+// var GlobalTaskLists = [];
+
 void main() {
+  // GlobalTaskLists = []; // Initialize the global variable here
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+// final prefs =  SharedPreferences.getInstance();
+//   var userId1 = prefs.getString('userId') ?? '';
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,58 +49,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-List<Map<String, dynamic>> taskLists = [
-  {
-    'title': 'Task List 1',
-    'tasks': [
-      {
-        'title': 'Task 1 for tasklist 1',
-        'description': 'Description 1 for tasklist 1',
-        'dueDate': '2023-12-31'
-      },
-      {
-        'title': 'Task 2 for tasklist 1',
-        'description': 'Description 2 for tasklist 1',
-        'dueDate': '2023-12-30'
-      },
-      // Add more tasks as needed
-    ],
-  },
-  {
-    'title': 'Task List 2',
-    'tasks': [
-      {
-        'title': 'Task 1 for tasklist 2',
-        'description': 'Description 1 for tasklist 2',
-        'dueDate': '2023-12-31'
-      },
-      {
-        'title': 'Task 2 for tasklist 2',
-        'description': 'Description 2 for tasklist 2',
-        'dueDate': '2023-12-30'
-      },
-      // Add more tasks as needed
-    ],
-  },
-  {
-    'title': 'Task List 3',
-    'tasks': [
-      {
-        'title': 'Task 1 for tasklist 3',
-        'description': 'Description 1 for tasklist 3',
-        'dueDate': '2023-12-31 '
-      },
-      {
-        'title': 'Task 2 for tasklist 3',
-        'description': 'Description 2 for tasklist 3',
-        'dueDate': '2023-12-30'
-      },
-      // Add more tasks as needed
-    ],
-  },
-  // Add more task lists as needed
-];
 
 Future<void> _onProfileClick(BuildContext context) async {
   return showDialog<void>(
@@ -154,9 +118,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String currentTaskListId = ''; // Declare it here
   late PageController _pageController;
   List<Map<String, dynamic>> favoriteTasks = []; // Store favorite tasks here
   int currentPageIndex = 1;
+  List<Map<String, dynamic>> taskLists = []; // Define taskLists
+  int currentTaskListIndex = 0;
 
   final List<Widget> screens = [
     Favorites(),
@@ -165,16 +132,34 @@ class _HomeScreenState extends State<HomeScreen> {
     // OtherTaskScreen(),
     // Add more screens as needed
   ];
-  List<Widget> generateTaskListScreens() {
-    return taskLists.map((taskList) {
-      return TaskListScreen(taskList: taskList);
-    }).toList();
-  }
+
+  // void _pageChanged() {
+  //   setState(() {
+  //     currentTaskListIndex = _pageController.page?.round() ?? 0;
+  //   });
+  // }
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: 1);
+    _pageController = PageController(initialPage: currentPageIndex);
+    // _pageController.addListener(_pageChanged); // Listen to page changes
+    // print('userId from init homescreen : $userId');
+
+    getTasks(userId).then((taskListData) {
+      setState(() {
+        taskLists = taskListData;
+        print('printing taskListData from setState : $taskListData');
+      });
+    });
+
+    // Listen to page changes and update currentTaskListId
+    _pageController.addListener(() {
+      setState(() {
+        currentTaskListId =
+            taskLists[_pageController.page?.round() ?? 0]['_id'] ?? '';
+      });
+    });
   }
 
   @override
@@ -185,10 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //  final List<Widget> pages = [
-    //   FavoritesPage(favoriteTasks: favoriteTasks), // Favorites page
-    //   generateTaskListScreens(), // Other task list pages
-    // ];
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -228,23 +209,33 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             height: 50,
             color: Colors.black,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(taskLists.length, (index) {
-                final isActive = index == currentPageIndex;
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(taskLists?.length ?? 0, (index) {
+                  final isActive = index == currentPageIndex;
 
-                return GestureDetector(
-                  onTap: () {
-                    _pageController.jumpToPage(index);
-                  },
-                  child: Text(
-                    taskLists[index]['title'],
-                    style: TextStyle(
-                      color: isActive ? Colors.blue : Colors.white,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        _pageController.jumpToPage(index);
+                        setState(() {
+                          currentPageIndex = index;
+                          currentTaskListIndex = index;
+                        });
+                      },
+                      child: Text(
+                        taskLists![index]['title'],
+                        style: TextStyle(
+                          color: isActive ? Colors.blue : Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
           ),
           Expanded(
@@ -253,6 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPageChanged: (index) {
                 setState(() {
                   currentPageIndex = index;
+                  currentTaskListIndex = index;
                 });
               },
               children: taskLists.map((taskList) {
@@ -262,7 +254,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBarcustom(),
+      bottomNavigationBar: BottomNavigationBarcustom(
+        currentTaskListId: currentTaskListId, // Pass the currentTaskListId
+        onNavItemPressed: (taskListId) {
+          setState(() {
+            currentTaskListId = taskListId; // Update the currentTaskListId
+          });
+        },
+      ),
     );
   }
 }
@@ -274,65 +273,25 @@ class IndicatorData {
   IndicatorData({required this.widget, required this.isIcon});
 }
 
-// class TaskListScreen extends StatefulWidget {
-//   final Map<String, dynamic> taskList;
-
-//   const TaskListScreen({required this.taskList});
-
-//   @override
-//   _TaskListScreenState createState() => _TaskListScreenState();
-// }
-
-// class _TaskListScreenState extends State<TaskListScreen> {
-//   late PageController
-//       _pageController; // Declare as late to ensure initialization
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _pageController =
-//         PageController(initialPage: 0); // Initialize _pageController
-//   }
-
-//   @override
-//   void dispose() {
-//     _pageController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final List<Map<String, dynamic>> tasks = widget.taskList['tasks'];
-
-//     return PageView.builder(
-//       controller: _pageController,
-//       itemCount: tasks.length,
-//       itemBuilder: (context, index) {
-//         final task = tasks[index];
-//         return TaskCard(
-//           title: task['title'],
-//           descrption: task['description'],
-//           dueDate: task['dueDate'],
-//         );
-//       },
-//     );
-//   }
-// }
-
-class TaskListScreen extends StatelessWidget {
+class TaskListScreen extends StatefulWidget {
   final Map<String, dynamic> taskList;
 
   const TaskListScreen({required this.taskList});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> tasks = taskList['tasks'];
+  State<TaskListScreen> createState() => _TaskListScreenState();
+}
 
+class _TaskListScreenState extends State<TaskListScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final tasks = widget.taskList['tasks']; // Use widget.taskList here
     return ListView.builder(
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
         return TaskCard(
+          taskId: task['_id'],
           title: task['title'],
           descrption: task['description'],
           dueDate: task['dueDate'],

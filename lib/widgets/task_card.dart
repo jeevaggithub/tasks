@@ -1,11 +1,15 @@
+// import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 class TaskCard extends StatefulWidget {
+  final String taskId;
   final String title;
   final String descrption;
   final String dueDate;
   const TaskCard(
-      {required this.title,
+      {required this.taskId,
+      required this.title,
       required this.descrption,
       required this.dueDate,
       Key? key})
@@ -16,6 +20,7 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
+  bool isFavorite = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,9 +44,13 @@ class _TaskCardState extends State<TaskCard> {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    isFavorite = !isFavorite;
+                  });
+                },
                 icon: Icon(
-                  Icons.star_border_outlined,
+                  isFavorite ? Icons.star : Icons.star_border,
                   color: Colors.white,
                 ),
               )

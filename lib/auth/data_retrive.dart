@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tasks/assets/variables.dart';
+import 'package:tasks/auth/task_manager.dart';
 import 'package:tasks/main.dart';
 
 String userName = '';
@@ -14,10 +15,6 @@ String userMobile = '';
 String TokenRef = '';
 
 Future<void> LocalUser(email) async {
-  // String userName = '';
-  // String userId = '';
-  // String userEmail = '';
-  // String userMobile = '';
   var url = '$baseurl/user';
   var response = await http.post(
     Uri.parse(url),
@@ -117,6 +114,7 @@ Future<void> userlogin(context, email, password) async {
       margin: EdgeInsets.all(5),
     );
     await LocalUser(email);
+    await getTasks(userId);
     ScaffoldMessenger.of(context).showSnackBar(snackdemo);
     Navigator.pushAndRemoveUntil(
       context,
