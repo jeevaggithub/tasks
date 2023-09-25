@@ -1,7 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:tasks/screens/Noti_taskScreen.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:tasks/assets/variables.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:tasks/api/firebase_api.dart';
+import 'package:tasks/screens/task_screen.dart';
+// import 'package:tasks/services/noti_service.dart';
+// import 'package:timezone/data/latest.dart' as tz;
+// import 'package:timezone/timezone.dart' as tz;
 import 'package:tasks/auth/data_retrive.dart';
 import 'package:tasks/auth/task_manager.dart';
 import 'package:tasks/screens/NotFoundScreen.dart';
@@ -17,9 +24,17 @@ import 'package:tasks/widgets/task_card.dart';
 
 // var GlobalTaskLists = [];
 
-void main() {
-  // GlobalTaskLists = []; // Initialize the global variable here
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // final notificationService = NotificationService();
+  // notificationService.initNotification();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseApi().initNotifications();
   runApp(const MyApp());
 }
 
@@ -36,6 +51,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    // NotificationService(context).initNotification();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tasks',
@@ -43,40 +59,66 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),
+      navigatorKey: navigatorKey,
       initialRoute: '/',
-      // onGenerateRoute: generateRoute,
+      onGenerateRoute: (settings) {
+        // Check if the app is opened from a notification
+        if (settings.name == '/task') {
+          // Extract task data from the payload
+          final taskData = settings.arguments as Map<String, dynamic>;
+          final taskId = taskData['taskId'];
+          final title = taskData['title'];
+          final description = taskData['description'];
+          final dueDate = taskData['dueDate'];
+
+          // Navigate to the TaskScreen with the extracted data
+          return MaterialPageRoute(
+            builder: (context) => TaskScreen(
+              taskId: taskId,
+              title: title,
+              description: description,
+              dueDate: dueDate,
+            ),
+          );
+        }
+
+        // Handle other routes here
+        // ...
+
+        return null; // Return null if the route is not recognized
+      },
       home: RegisterPage(),
     );
   }
 }
 
-Future<void> _onProfileClick(BuildContext context) async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Profile Dialog'),
-        content: const SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('This is your profile.'),
-              Text('You can add more content here.'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Close'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+// Future<void> _onProfileClick(BuildContext context) async {
+//   return showDialog<void>(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: const Text('Profile Dialog'),
+//         content: const SingleChildScrollView(
+//           child: ListBody(
+//             children: <Widget>[
+//               Text('This is your profile.'),
+//               Text('You can add more content here.'),
+//             ],
+//           ),
+//         ),
+//         actions: <Widget>[
+//           TextButton(
+//             child: const Text('Close'),
+//             onPressed: () {
+//               Navigator.of(context).pop();
+//             },
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
 
 final List<IndicatorData> indicators = [
   IndicatorData(widget: Icon(Icons.star), isIcon: true),
@@ -104,6 +146,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => RegisterPage());
     case '/login':
       return MaterialPageRoute(builder: (_) => LoginPage());
+    // case '/notitaskscreen':
+    //   return MaterialPageRoute(builder: (_) => NotiTaskScreen(
+
+    //   ));
     // Define more routes as needed
     default:
       return MaterialPageRoute(builder: (_) => NotFoundScreen());
@@ -118,7 +164,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String currentTaskListId = ''; // Declare it here
+  String currentTaskListId = 'q'; // Declare it here
   late PageController _pageController;
   List<Map<String, dynamic>> favoriteTasks = []; // Store favorite tasks here
   int currentPageIndex = 1;
@@ -155,10 +201,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Listen to page changes and update currentTaskListId
     _pageController.addListener(() {
-      setState(() {
-        currentTaskListId =
-            taskLists[_pageController.page?.round() ?? 0]['_id'] ?? '';
-      });
+      final currentPage = _pageController.page?.round() ?? 0;
+      if (taskLists.isNotEmpty &&
+          currentPage >= 0 &&
+          currentPage < taskLists.length) {
+        setState(() {
+          currentTaskListId = taskLists[currentPage]['_id'] ?? '';
+        });
+      }
     });
   }
 
@@ -213,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(taskLists?.length ?? 0, (index) {
+                children: List.generate(taskLists.length, (index) {
                   final isActive = index == currentPageIndex;
 
                   return Padding(
@@ -227,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       },
                       child: Text(
-                        taskLists![index]['title'],
+                        taskLists[index]['title'],
                         style: TextStyle(
                           color: isActive ? Colors.blue : Colors.white,
                         ),
@@ -293,7 +343,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
         return TaskCard(
           taskId: task['_id'],
           title: task['title'],
-          descrption: task['description'],
+          description: task['description'],
           dueDate: task['dueDate'],
         );
       },

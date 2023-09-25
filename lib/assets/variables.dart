@@ -1,9 +1,14 @@
-var baseurl = 'http://192.168.1.130:8080'; //NTPL Wifib IP
+import 'package:flutter/material.dart';
+
+var baseurl = 'http://192.168.1.82:8080'; //NTPL Wifib IP
 // var baseurl = 'http://192.168.1.8:8080'; //Home wifi IP
 
 // var Localstorage = {};
 
 late List<Map<String, dynamic>> GlobalTaskLists;
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 
 // List<Map<String, dynamic>> taskListsdmu = [
 //   {

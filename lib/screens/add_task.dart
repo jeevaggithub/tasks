@@ -151,31 +151,57 @@ class _AddTaskState extends State<AddTask> {
                           height: 10.0,
                         ),
                         Padding(
-                          padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
-                          child: DateTimeFormField(
-                            decoration: const InputDecoration(
-                              hintStyle: TextStyle(color: Colors.white),
-                              errorStyle: TextStyle(color: Colors.redAccent),
-                              border: OutlineInputBorder(),
-                              suffixIcon: Icon(Icons.event_note),
-                              labelText: 'My Super Date Time Field',
-                              labelStyle: TextStyle(color: Colors.white),
+                            padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                            child: DateTimeFormField(
+                              decoration: const InputDecoration(
+                                hintStyle: TextStyle(color: Colors.black45),
+                                errorStyle: TextStyle(color: Colors.redAccent),
+                                border: OutlineInputBorder(),
+                                suffixIcon: Icon(Icons.event_note),
+                                labelText: 'Duedate and time',
+                                labelStyle: TextStyle(color: Colors.white),
+                                // labelText: 'Only time',
+                              ),
+                              mode: DateTimeFieldPickerMode.dateAndTime,
+                              autovalidateMode: AutovalidateMode.always,
+                              validator: (e) => (e?.day ?? 0) == 1
+                                  ? 'Please not the first day'
+                                  : null,
+                              onDateSelected: (DateTime value) {
+                                print(value);
+                                _dueDate = value;
+                              },
+                            )
+
+                            // DateTimeFormField(
+                            //   decoration: const InputDecoration(
+                            //     hintStyle: TextStyle(color: Colors.white),
+                            //     errorStyle: TextStyle(color: Colors.redAccent),
+                            //     border: OutlineInputBorder(),
+                            //     suffixIcon: Icon(Icons.event_note),
+                            //     labelText: 'Duedate and time',
+                            //     labelStyle: TextStyle(color: Colors.white),
+                            //   ),
+                            //   firstDate:
+                            //       DateTime.now().add(const Duration(days: 10)),
+                            //   lastDate:
+                            //       DateTime.now().add(const Duration(days: 40)),
+                            //   initialDate: _dueDate ??
+                            //       DateTime.now().add(const Duration(days: 0)),
+                            //   autovalidateMode: AutovalidateMode.always,
+                            //   validator: (DateTime? e) => (e?.day ?? 0) == 1
+                            //       ? 'Please not the first day'
+                            //       : null,
+                            //   onDateSelected: (DateTime value) {
+                            //     print(value);
+                            //     _dueDate = value;
+                            //   },
+                            // ),
                             ),
-                            firstDate:
-                                DateTime.now().add(const Duration(days: 10)),
-                            lastDate:
-                                DateTime.now().add(const Duration(days: 40)),
-                            initialDate:
-                                DateTime.now().add(const Duration(days: 20)),
-                            autovalidateMode: AutovalidateMode.always,
-                            validator: (DateTime? e) => (e?.day ?? 0) == 1
-                                ? 'Please not the first day'
-                                : null,
-                            onDateSelected: (DateTime value) {
-                              print(value);
-                              _dueDate = value;
-                            },
-                          ),
+                        SizedBox(height: 20.0),
+                        Text(
+                          'Selected Date and Time: ${_dueDate?.toString() ?? "Not selected"}',
+                          style: TextStyle(fontSize: 18.0, color: Colors.white),
                         ),
                       ],
                     ),

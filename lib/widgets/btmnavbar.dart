@@ -3,6 +3,7 @@ import 'package:tasks/auth/task_manager.dart';
 import 'package:tasks/screens/add_list.dart';
 // import 'package:tasks/screens/add_screen.dart';
 import 'package:tasks/screens/add_task.dart';
+import 'package:tasks/services/noti_service.dart';
 
 class BottomNavigationBarcustom extends StatefulWidget {
   final void Function(String) onNavItemPressed; // Callback function
@@ -222,6 +223,14 @@ class _BottomNavigationBarcustomState extends State<BottomNavigationBarcustom> {
             padding: EdgeInsets.all(20.0),
             onPressed: () {
               // _onMenu(context, 'Sort by');
+              AlertDialog(
+                backgroundColor: Colors.black,
+                content: Text('data'),
+              );
+              print("printing from btm nav taskList _id:");
+              print(widget.currentTaskListId);
+              NotificationService()
+                  .showNotification(title: 'title', body: 'sample body');
             },
             icon: Icon(
               Icons.sort,
