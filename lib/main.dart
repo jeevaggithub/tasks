@@ -1,9 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:tasks/screens/Noti_taskScreen.dart';
+// import 'package:tasks/screens/Noti_taskScreen.dart';
 import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:tasks/api/firebase_api.dart';
 import 'package:tasks/screens/task_screen.dart';
 // import 'package:tasks/services/noti_service.dart';
@@ -31,6 +32,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
   // final notificationService = NotificationService();
   // notificationService.initNotification();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

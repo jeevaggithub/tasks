@@ -164,9 +164,12 @@ class _AddTaskState extends State<AddTask> {
                               ),
                               mode: DateTimeFieldPickerMode.dateAndTime,
                               autovalidateMode: AutovalidateMode.always,
+                              initialValue:
+                                  _dueDate, // Bind to the _dueDate variable.
                               validator: (e) => (e?.day ?? 0) == 1
                                   ? 'Please not the first day'
                                   : null,
+
                               onDateSelected: (DateTime value) {
                                 print(value);
                                 _dueDate = value;

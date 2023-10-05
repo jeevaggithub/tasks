@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:tasks/auth/task_manager.dart';
 import 'package:tasks/services/noti_service.dart';
 
 class NotiTaskScreen extends StatefulWidget {
@@ -173,7 +174,49 @@ class _TaskScreenState extends State<NotiTaskScreen> {
                   color: Colors.redAccent,
                   child: TextButton.icon(
                       // style: Colors.blue,
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Are you sure to delete'),
+                              content: SingleChildScrollView(
+                                child: ListBody(
+                                  children: <Widget>[
+                                    Text('the task '),
+                                    Text(
+                                      widget.title,
+                                      style: TextStyle(fontSize: 20.0),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text(
+                                    'Yes',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  ),
+                                  onPressed: () {
+                                    // Navigator.of(context).pop();
+                                    deleteTask(context, widget.taskId);
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text(
+                                    'Close',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       icon: Icon(
                         Icons.delete_forever,
                         color: Colors.white,

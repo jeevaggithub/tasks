@@ -1,6 +1,7 @@
 // import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+// import 'package:intl/intl.dart';
 import 'package:tasks/screens/task_screen.dart';
 
 class TaskCard extends StatefulWidget {
@@ -83,6 +84,9 @@ class _TaskCardState extends State<TaskCard> {
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
                   Text(
+                    // Format the date and time here
+                    // DateFormat('yyyy-MM-dd  HH:mm:ss')
+                    //     .format(DateTime.parse(widget.dueDate)),
                     widget.dueDate,
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   )

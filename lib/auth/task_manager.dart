@@ -151,8 +151,52 @@ Future<void> deleteTaskList(BuildContext context, String tasklistid) async {
   }
 }
 
-//New task api
+//Delete task
+Future<void> deleteTask(BuildContext context, String taskid) async {
+  // final prefs = await SharedPreferences.getInstance();
+  // userId = prefs.getString('userId') ?? '';
+  if (taskid == '') {
+    print('name is empty' + taskid);
+    return;
+  }
+  try {
+    print('delete task id is : $taskid');
+    print('delete userId id is : $userId');
+    var url = '$baseurl/deletetask/$taskid';
 
+    final response = await http.delete(Uri.parse(url));
+
+    var res = jsonDecode(response.body)["message"];
+    print(res);
+
+    if (response.statusCode == 200 && res == 'Task deleted') {
+      // Navigate to the home screen or any other screen you want
+      await getTasks(userId);
+
+      // Push a new HomeScreen to replace the current one
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => HomeScreen(),
+      ));
+      const snackdemo = SnackBar(
+        content: Text(
+          'Task deleted successfully',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueAccent,
+        elevation: 10,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(5),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackdemo);
+    } else {
+      print('something wrong in the response');
+    }
+  } catch (error) {
+    print('Error making GET request: $error');
+  }
+}
+
+//New task api
 Future<void> newTask(
   BuildContext context,
   String title,
@@ -161,7 +205,8 @@ Future<void> newTask(
   dueDate,
 ) async {
   // Create a DateTime object
-  DateTime dueDate = DateTime.now();
+  // DateTime dueDate = DateTime.now();
+  print('printing dueDate from newTask : $dueDate ');
 // Format the DateTime object as a string
   String formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dueDate);
   final prefs = await SharedPreferences.getInstance();
@@ -196,6 +241,17 @@ Future<void> newTask(
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => HomeScreen(),
       ));
+      var snackdemo = SnackBar(
+        content: Text(
+          'Task $title created successfully',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueAccent,
+        elevation: 10,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(5),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackdemo);
     } else {
       print('something wrong in the response');
     }

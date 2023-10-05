@@ -1,9 +1,9 @@
 import 'dart:convert';
-
+import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:tasks/screens/Noti_taskScreen.dart';
-import 'package:tasks/screens/task_screen.dart';
+// import 'package:tasks/screens/task_screen.dart';
 
 import '../main.dart';
 
@@ -61,17 +61,6 @@ class NotificationService {
               ),
             ),
           );
-
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (BuildContext context) => TaskScreen(
-          //         taskId: taskId,
-          //         title: title,
-          //         descrption: desc,
-          //         dueDate: dueDate),
-          //   ),
-          // );
         }
       }
     });
@@ -102,5 +91,65 @@ class NotificationService {
     return flutterLocalNotificationsPlugin.show(
         id, title, body, await notificationDetails(),
         payload: jsonEncode(notificationPayload));
+  }
+
+  // Future<void> scheduleNotification({
+  //   int id = 0,
+  //   String? title,
+  //   String? body,
+  //   String? taskId,
+  //   String? desc,
+  //   DateTime? dueDate,
+  // }) async {
+  //   if (dueDate != null) {
+  //     final notificationTime = dueDate.subtract(Duration(minutes: 10));
+  //     final now = DateTime.now();
+  //     if (notificationTime.isAfter(now)) {
+  //       await flutterLocalNotificationsPlugin.zonedSchedule(
+  //         id,
+  //         title,
+  //         body,
+  //         tz.TZDateTime.from(notificationTime, tz.local),
+  //         await notificationDetails(),
+  //         androidAllowWhileIdle: true,
+  //         uiLocalNotificationDateInterpretation:
+  //             UILocalNotificationDateInterpretation.absoluteTime,
+  //         payload: jsonEncode({
+  //           'taskId': taskId,
+  //           'title': title,
+  //           'body': body,
+  //           'desc': desc,
+  //           'dueDate': dueDate.toIso8601String(),
+  //         }),
+  //       );
+  //     }
+  //   }
+  // }
+
+  Future scheduleNotification({
+    required int id,
+    String? title,
+    String? body,
+    String? payload,
+    String? taskId,
+    String? desc,
+    required DateTime? dueDate,
+  }) async {
+    print('printing from scheduleNotification :${dueDate.toString()}');
+    return flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(dueDate!, tz.local),
+      await notificationDetails(),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      payload: payload,
+    );
+  }
+
+  Future<void> cancelScheduledNotification(id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
   }
 }
